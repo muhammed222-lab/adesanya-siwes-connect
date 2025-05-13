@@ -13,6 +13,7 @@ import LoginForm from "./pages/Login/LoginForm";
 import Register from "./pages/Register";
 import RegisterForm from "./pages/Register/RegisterForm";
 import StudentSignup from "./pages/Signup/StudentSignup";
+import ForgotPassword from "./pages/ForgotPassword";
 
 // Student pages
 import StudentDashboard from "./pages/Student/Dashboard";
@@ -29,6 +30,7 @@ import SupervisorMessages from "./pages/Supervisor/Messages";
 
 // Coordinator pages
 import CoordinatorDashboard from "./pages/Coordinator/Dashboard";
+import AddSupervisor from "./pages/Coordinator/AddSupervisor";
 
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -50,6 +52,7 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/register/:role" element={<RegisterForm />} />
             <Route path="/signup/student" element={<StudentSignup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
             {/* Student Routes */}
             <Route path="/student/dashboard" element={
@@ -109,6 +112,11 @@ const App = () => (
             <Route path="/coordinator/dashboard" element={
               <ProtectedRoute allowedRoles={['coordinator']}>
                 <CoordinatorDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/coordinator/add-supervisor" element={
+              <ProtectedRoute allowedRoles={['coordinator']}>
+                <AddSupervisor />
               </ProtectedRoute>
             } />
 

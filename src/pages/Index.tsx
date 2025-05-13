@@ -18,14 +18,24 @@ const Index = () => {
             <p className="text-lg mb-6">
               Abraham Adesanya Polytechnic's platform for managing Student Industrial Work Experience Scheme
             </p>
-            <Button 
-              onClick={() => navigate('/login')} 
-              className="bg-white text-aapoly-purple hover:bg-gray-100 flex items-center"
-              size="lg"
-            >
-              Get Started
-              <ArrowRight className="ml-2" size={18} />
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button 
+                onClick={() => navigate('/login')} 
+                className="bg-white text-aapoly-purple hover:bg-gray-100 flex items-center"
+                size="lg"
+              >
+                Login
+                <ArrowRight className="ml-2" size={18} />
+              </Button>
+              <Button 
+                onClick={() => navigate('/signup/student')} 
+                className="bg-aapoly-gold text-aapoly-dark hover:bg-aapoly-gold/90 flex items-center"
+                size="lg"
+              >
+                New Student? Sign Up
+                <ArrowRight className="ml-2" size={18} />
+              </Button>
+            </div>
           </div>
           
           <div className="md:w-1/2 flex justify-center">

@@ -140,6 +140,36 @@ const LoginForm = () => {
               </p>
             </div>
           )}
+          
+          {validRole === 'student' && (
+            <div className="mt-6 text-center border-t pt-4">
+              <p className="text-gray-600">
+                New student?{' '}
+                <a 
+                  href="#" 
+                  className="text-aapoly-purple hover:underline"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/signup/student');
+                  }}
+                >
+                  Create an account
+                </a>
+              </p>
+              <p className="text-gray-600 mt-2">
+                <a 
+                  href="#" 
+                  className="text-aapoly-purple hover:underline"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/forgot-password');
+                  }}
+                >
+                  Forgot password?
+                </a>
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="mt-8 text-center">
