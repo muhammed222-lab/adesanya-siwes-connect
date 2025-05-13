@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
@@ -12,7 +11,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Search, MessageSquare, FileText, AlertTriangle } from 'lucide-react';
+import { Search, MessageSquare, FileText, AlertTriangle, Users } from 'lucide-react';
 
 // Mock data for assigned students
 const mockStudents = [
