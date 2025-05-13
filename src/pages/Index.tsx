@@ -1,142 +1,471 @@
-
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import {
+  ArrowRight,
+  ChevronRight,
+  BookOpen,
+  MessageSquare,
+  FileText,
+  Users,
+  Briefcase,
+  CheckCircle,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { useInView } from "react-intersection-observer";
 
 const Index = () => {
   const navigate = useNavigate();
 
+  // Animation variants
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 },
+  };
+
+  // Intersection observer hooks for each section
+  const [heroRef, heroInView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
+  });
+  const [featuresRef, featuresInView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
+  });
+  const [ctaRef, ctaInView] = useInView({ threshold: 0.1, triggerOnce: true });
+
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-aapoly-purple to-purple-700 py-16 px-4 md:px-8 text-white">
-        <div className="container mx-auto flex flex-col md:flex-row items-center justify-between">
-          <div className="md:w-1/2 mb-8 md:mb-0">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              SIWES Management System
-            </h1>
-            <p className="text-lg mb-6">
-              Abraham Adesanya Polytechnic's platform for managing Student Industrial Work Experience Scheme
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button 
-                onClick={() => navigate('/login')} 
-                className="bg-white text-aapoly-purple hover:bg-gray-100 flex items-center"
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white">
+      {/* Animated Hero Section */}
+      <motion.div
+        ref={heroRef}
+        initial={{ opacity: 0 }}
+        animate={heroInView ? { opacity: 1 } : {}}
+        transition={{ duration: 0.8 }}
+        className="relative bg-gradient-to-r from-aapoly-purple to-purple-700 py-20 px-4 md:px-8 text-white overflow-hidden"
+      >
+        {/* Decorative elements */}
+        <div className="absolute top-0 left-0 w-full h-full opacity-10">
+          <div className="absolute top-20 left-20 w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl"></div>
+          <div className="absolute bottom-20 right-20 w-64 h-64 bg-aapoly-gold rounded-full mix-blend-multiply filter blur-xl"></div>
+        </div>
+
+        <div className="container mx-auto flex flex-col md:flex-row items-center justify-between relative z-10">
+          <div className="md:w-1/2 mb-12 md:mb-0">
+            <motion.h1
+              initial={{ y: -20, opacity: 0 }}
+              animate={heroInView ? { y: 0, opacity: 1 } : {}}
+              transition={{ delay: 0.2 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
+            >
+              Transform Your <span className="text-aapoly-gold">SIWES</span>{" "}
+              Experience
+            </motion.h1>
+
+            <motion.p
+              initial={{ y: -20, opacity: 0 }}
+              animate={heroInView ? { y: 0, opacity: 1 } : {}}
+              transition={{ delay: 0.4 }}
+              className="text-lg md:text-xl mb-8 text-gray-100 max-w-lg"
+            >
+              Abraham Adesanya Polytechnic's comprehensive platform for seamless
+              Student Industrial Work Experience management.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={heroInView ? { opacity: 1 } : {}}
+              transition={{ delay: 0.6 }}
+              className="flex flex-col sm:flex-row gap-4"
+            >
+              <Button
+                onClick={() => navigate("/login")}
+                className="bg-white text-aapoly-purple hover:bg-gray-100 hover:scale-105 transition-transform flex items-center gap-2 shadow-lg"
                 size="lg"
               >
-                Login
-                <ArrowRight className="ml-2" size={18} />
+                Get Started
+                <ArrowRight className="h-5 w-5" />
               </Button>
-              <Button 
-                onClick={() => navigate('/signup/student')} 
-                className="bg-aapoly-gold text-aapoly-dark hover:bg-aapoly-gold/90 flex items-center"
+              <Button
+                onClick={() => navigate("/signup/student")}
+                className="bg-transparent border-2 border-white hover:bg-white/10 hover:scale-105 transition-transform flex items-center gap-2 shadow-lg"
                 size="lg"
+                variant="outline"
               >
-                New Student? Sign Up
-                <ArrowRight className="ml-2" size={18} />
+                Student Registration
+                <ChevronRight className="h-5 w-5" />
               </Button>
-            </div>
+            </motion.div>
           </div>
-          
-          <div className="md:w-1/2 flex justify-center">
-            <img 
-              src="https://aapoly.edu.ng/wp-content/uploads/2021/12/aapoly-1.png" 
-              alt="AAPOLY SIWES" 
-              className="w-64 h-auto"
-            />
+
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={heroInView ? { scale: 1, opacity: 1 } : {}}
+            transition={{ delay: 0.3 }}
+            className="md:w-1/2 flex justify-center relative"
+          >
+            <div className="relative">
+              <img
+                src="/favicon.png"
+                alt="AAPOLY SIWES"
+                className="w-64 h-64 md:w-80 md:h-80 object-contain z-10 relative"
+              />
+              <div className="absolute -inset-8 bg-white/10 rounded-full animate-pulse"></div>
+              <div className="absolute -inset-12 bg-white/5 rounded-full animate-pulse delay-300"></div>
+            </div>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Stats Section */}
+      <div className="bg-white py-12 px-4 md:px-8 shadow-sm">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { value: "500+", label: "Active Students" },
+              { value: "50+", label: "Supervisors" },
+              { value: "100%", label: "Completion Rate" },
+              { value: "24/7", label: "Support" },
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="text-center p-6 bg-gray-50 rounded-xl hover:shadow-md transition-shadow"
+              >
+                <p className="text-3xl font-bold text-aapoly-purple mb-2">
+                  {stat.value}
+                </p>
+                <p className="text-gray-600">{stat.label}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Features Section */}
-      <div className="py-16 px-4 md:px-8 bg-gray-50">
+      <motion.div
+        ref={featuresRef}
+        initial={{ opacity: 0 }}
+        animate={featuresInView ? { opacity: 1 } : {}}
+        transition={{ duration: 0.8 }}
+        className="py-20 px-4 md:px-8 bg-gray-50"
+      >
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Platform Features</h2>
-          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <span className="inline-block bg-aapoly-purple/10 text-aapoly-purple px-4 py-2 rounded-full text-sm font-medium mb-4">
+              Powerful Features
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Everything You Need for Successful SIWES
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Our platform provides all the tools students and supervisors need
+              for a seamless industrial experience.
+            </p>
+          </motion.div>
+
+          <motion.div
+            variants={container}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {[
+              {
+                icon: <BookOpen className="w-8 h-8" />,
+                title: "Comprehensive Dashboard",
+                description:
+                  "Track your progress, deadlines, and important updates in one centralized location.",
+                color: "bg-aapoly-purple/10 text-aapoly-purple",
+              },
+              {
+                icon: <MessageSquare className="w-8 h-8" />,
+                title: "Real-time Communication",
+                description:
+                  "Chat directly with supervisors and coordinators for instant feedback and guidance.",
+                color: "bg-blue-100 text-blue-600",
+              },
+              {
+                icon: <FileText className="w-8 h-8" />,
+                title: "Automated Reporting",
+                description:
+                  "Submit weekly reports with ease and receive timely feedback from supervisors.",
+                color: "bg-green-100 text-green-600",
+              },
+              {
+                icon: <Users className="w-8 h-8" />,
+                title: "Supervisor Matching",
+                description:
+                  "Get paired with the most suitable supervisor for your field of study.",
+                color: "bg-yellow-100 text-yellow-600",
+              },
+              {
+                icon: <Briefcase className="w-8 h-8" />,
+                title: "Industry Connections",
+                description:
+                  "Access our network of partner organizations for placement opportunities.",
+                color: "bg-red-100 text-red-600",
+              },
+              {
+                icon: <CheckCircle className="w-8 h-8" />,
+                title: "Progress Tracking",
+                description:
+                  "Monitor your skill development and competency achievements throughout the program.",
+                color: "bg-indigo-100 text-indigo-600",
+              },
+            ].map((feature, index) => (
+              <motion.div
+                key={index}
+                variants={item}
+                className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100"
+              >
+                <div
+                  className={`${feature.color} w-14 h-14 rounded-lg flex items-center justify-center mb-6`}
+                >
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Testimonials Section */}
+      <div className="py-20 px-4 md:px-8 bg-white">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <span className="inline-block bg-aapoly-gold/10 text-aapoly-dark px-4 py-2 rounded-full text-sm font-medium mb-4">
+              Success Stories
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              What Our Students Say
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Hear from students who have transformed their careers through our
+              SIWES program.
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-12 h-12 bg-aapoly-purple text-white flex items-center justify-center rounded-full mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Student Management</h3>
-              <p className="text-gray-600">
-                Register, track progress, and manage all aspects of student SIWES experience.
-              </p>
-            </div>
-            
-            {/* Feature 2 */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-12 h-12 bg-aapoly-gold text-aapoly-dark flex items-center justify-center rounded-full mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Communication</h3>
-              <p className="text-gray-600">
-                Real-time chat system between students and supervisors to enhance collaboration.
-              </p>
-            </div>
-            
-            {/* Feature 3 */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-12 h-12 bg-aapoly-dark text-white flex items-center justify-center rounded-full mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Report Management</h3>
-              <p className="text-gray-600">
-                Simple weekly reporting system for students with supervisor feedback.
-              </p>
-            </div>
+            {[
+              {
+                quote:
+                  "The SIWES platform made my industrial training seamless. Submitting reports and getting feedback was incredibly easy.",
+                name: "Adeola Johnson",
+                role: "Computer Science Student",
+              },
+              {
+                quote:
+                  "As a supervisor, I appreciate how the system organizes student progress and makes communication effortless.",
+                name: "Dr. Ibrahim Musa",
+                role: "SIWES Supervisor",
+              },
+              {
+                quote:
+                  "The real-time chat feature helped me resolve issues quickly during my placement. Highly recommended!",
+                name: "Chinedu Okoro",
+                role: "Engineering Student",
+              },
+            ].map((testimonial, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.2 }}
+                viewport={{ once: true }}
+                className="bg-gray-50 p-8 rounded-xl"
+              >
+                <div className="text-aapoly-purple text-4xl mb-4">"</div>
+                <p className="text-lg text-gray-700 mb-6">
+                  {testimonial.quote}
+                </p>
+                <div>
+                  <p className="font-semibold">{testimonial.name}</p>
+                  <p className="text-gray-600 text-sm">{testimonial.role}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* CTA Section */}
-      <div className="py-16 px-4 md:px-8 bg-white">
+      <motion.div
+        ref={ctaRef}
+        initial={{ opacity: 0 }}
+        animate={ctaInView ? { opacity: 1 } : {}}
+        transition={{ duration: 0.8 }}
+        className="py-20 px-4 md:px-8 bg-gradient-to-r from-aapoly-purple to-purple-700 text-white"
+      >
         <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-6">Ready to Get Started?</h2>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Access the SIWES Management System to streamline your industrial work experience process.
-          </p>
-          <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <Button 
-              onClick={() => navigate('/login')} 
-              className="bg-aapoly-purple hover:bg-aapoly-purple/90"
+          <motion.h2
+            initial={{ y: -20, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-3xl md:text-4xl font-bold mb-6"
+          >
+            Ready to Elevate Your Industrial Training?
+          </motion.h2>
+          <motion.p
+            initial={{ y: -20, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            viewport={{ once: true }}
+            className="text-lg mb-8 max-w-2xl mx-auto text-gray-100"
+          >
+            Join hundreds of students who have transformed their careers through
+            our SIWES program.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            viewport={{ once: true }}
+            className="flex flex-col md:flex-row gap-4 justify-center"
+          >
+            <Button
+              onClick={() => navigate("/login")}
+              className="bg-white text-aapoly-purple hover:bg-gray-100 hover:scale-105 transition-transform shadow-lg"
               size="lg"
             >
-              Login
+              Login to Dashboard
             </Button>
-            <Button 
-              onClick={() => navigate('/register')}
-              variant="outline" 
+            <Button
+              onClick={() => navigate("/register")}
+              variant="outline"
+              className="text-black border-white hover:bg-white/10 hover:scale-105 transition-transform shadow-lg"
               size="lg"
             >
-              Register
+              Create Account
             </Button>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Footer */}
-      <footer className="bg-aapoly-dark text-white py-8 px-4 md:px-8 mt-auto">
+      <footer className="bg-aapoly-dark text-white py-12 px-4 md:px-8">
         <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <img 
-                src="https://aapoly.edu.ng/wp-content/uploads/2021/12/aapoly-1.png" 
-                alt="Abraham Adesanya Polytechnic" 
-                className="h-10 w-auto"
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <img
+                src="/favicon.png"
+                alt="Abraham Adesanya Polytechnic"
+                className="h-10 w-auto mb-4"
               />
+              <p className="text-gray-400">
+                Empowering students with practical industrial experience since
+                2010.
+              </p>
             </div>
-            <div className="text-center md:text-right">
-              <p>© {new Date().getFullYear()} Abraham Adesanya Polytechnic</p>
-              <p className="text-sm text-gray-400">SIWES Management System</p>
+            <div>
+              <h3 className="font-semibold text-lg mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-white transition"
+                  >
+                    Home
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-white transition"
+                  >
+                    About
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-white transition"
+                  >
+                    Features
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-white transition"
+                  >
+                    Contact
+                  </a>
+                </li>
+              </ul>
             </div>
+            <div>
+              <h3 className="font-semibold text-lg mb-4">Resources</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-white transition"
+                  >
+                    Help Center
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-white transition"
+                  >
+                    Documentation
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-white transition"
+                  >
+                    SIWES Guidelines
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-white transition"
+                  >
+                    FAQs
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg mb-4">Contact Us</h3>
+              <address className="not-italic text-gray-400">
+                <p>Abraham Adesanya Polytechnic</p>
+                <p>Ijebu-Igbo, Ogun State</p>
+                <p>Email: siwes@aapoly.edu.ng</p>
+                <p>Phone: +234 812 345 6789</p>
+              </address>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
+            <p>
+              © {new Date().getFullYear()} Abraham Adesanya Polytechnic. All
+              rights reserved.
+            </p>
           </div>
         </div>
       </footer>
