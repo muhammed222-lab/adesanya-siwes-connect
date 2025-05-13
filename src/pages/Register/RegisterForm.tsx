@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -51,7 +52,7 @@ const RegisterForm = () => {
     setError('');
     setLoading(true);
     
-    // If it's a student, redirect to the new student signup page
+    // Students have their own dedicated signup page now
     if (validRole === 'student') {
       navigate('/signup/student');
       return;
