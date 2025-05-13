@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -52,6 +51,12 @@ const RegisterForm = () => {
     setError('');
     setLoading(true);
     
+    // If it's a student, redirect to the new student signup page
+    if (validRole === 'student') {
+      navigate('/signup/student');
+      return;
+    }
+    
     // Basic validation
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -68,6 +73,12 @@ const RegisterForm = () => {
       });
     }, 1500);
   };
+
+  // For students, redirect to the new dedicated signup page
+  if (validRole === 'student') {
+    navigate('/signup/student');
+    return null;
+  }
 
   const getFormTitle = () => {
     switch (validRole) {
