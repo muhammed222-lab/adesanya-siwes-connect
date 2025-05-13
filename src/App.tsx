@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import LoginForm from "./pages/Login/LoginForm";
 import Register from "./pages/Register";
 import RegisterForm from "./pages/Register/RegisterForm";
+import StudentSignup from "./pages/Signup/StudentSignup";
 
 // Student pages
 import StudentDashboard from "./pages/Student/Dashboard";
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/login/:role" element={<LoginForm />} />
             <Route path="/register" element={<Register />} />
             <Route path="/register/:role" element={<RegisterForm />} />
+            <Route path="/signup/student" element={<StudentSignup />} />
 
             {/* Student Routes */}
             <Route path="/student/dashboard" element={
