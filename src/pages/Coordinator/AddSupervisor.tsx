@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -162,7 +161,7 @@ const AddSupervisor = () => {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout title="Add Supervisor">
       <div className="space-y-6">
         <div className="flex items-center space-x-2">
           <UserPlus className="w-8 h-8 text-aapoly-purple" />

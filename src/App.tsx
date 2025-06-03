@@ -27,9 +27,12 @@ import SupervisorDashboard from "./pages/Supervisor/Dashboard";
 import SupervisorStudents from "./pages/Supervisor/Students";
 import SupervisorReports from "./pages/Supervisor/Reports";
 import SupervisorMessages from "./pages/Supervisor/Messages";
+import SupervisorCalendar from "./pages/Supervisor/Calendar";
 
 // Coordinator pages
 import CoordinatorDashboard from "./pages/Coordinator/Dashboard";
+import CoordinatorStudents from "./pages/Coordinator/Students";
+import CoordinatorOrganizations from "./pages/Coordinator/Organizations";
 import AddSupervisor from "./pages/Coordinator/AddSupervisor";
 
 import NotFound from "./pages/NotFound";
@@ -107,11 +110,26 @@ const App = () => (
                 <SupervisorMessages />
               </ProtectedRoute>
             } />
+            <Route path="/supervisor/calendar" element={
+              <ProtectedRoute allowedRoles={['supervisor']}>
+                <SupervisorCalendar />
+              </ProtectedRoute>
+            } />
 
             {/* Coordinator Routes */}
             <Route path="/coordinator/dashboard" element={
               <ProtectedRoute allowedRoles={['coordinator']}>
                 <CoordinatorDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/coordinator/students" element={
+              <ProtectedRoute allowedRoles={['coordinator']}>
+                <CoordinatorStudents />
+              </ProtectedRoute>
+            } />
+            <Route path="/coordinator/organizations" element={
+              <ProtectedRoute allowedRoles={['coordinator']}>
+                <CoordinatorOrganizations />
               </ProtectedRoute>
             } />
             <Route path="/coordinator/add-supervisor" element={
