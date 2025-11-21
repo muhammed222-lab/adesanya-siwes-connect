@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
 import StatCard from '../../components/Dashboard/StatCard';
@@ -20,6 +21,7 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { Users, FileText, Building, User, MessageSquare, AlertTriangle } from 'lucide-react';
+import { getStudents, getReports, getSupervisors } from '../../lib/mockData';
 
 // Mock data for weekly report submissions
 const reportSubmissionData = [
@@ -41,17 +43,74 @@ const topOrganizations = [
 const CoordinatorDashboard = () => {
   const navigate = useNavigate();
   
-  // Mock data for coordinator dashboard
-  const coordinatorStats = {
-    totalStudents: 152,
-    activeStudents: 140,
-    inactiveStudents: 12,
-    totalSupervisors: 15,
-    totalOrganizations: 42,
-    pendingReports: 120,
-    reviewedReports: 405,
-    totalReports: 525,
-  };
+  const [coordinatorStats, setCoordinatorStats] = useState({
+    totalStudents: 0,
+    activeStudents: 0,
+    inactiveStudents: 0,
+    totalSupervisors: 0,
+    totalOrganizations: 0,
+    pendingReports: 0,
+    reviewedReports: 0,
+    totalReports: 0,
+  });
+
+  const [reportSubmissionData, setReportSubmissionData] = useState<any[]>([]);
+  const [topOrganizations, setTopOrganizations] = useState<any[]>([]);
+
+  useEffect(() => {
+    const students = getStudents();
+    const reports = getReports();
+    const supervisors = getSupervisors();
+
+    // Calculate stats
+    const orgsMap = new Map<string, number>();
+    students.forEach(s => {
+      if (s.organizationName) {
+        orgsMap.set(s.organizationName, (orgsMap.get(s.organizationName) || 0) + 1);
+      }
+    });
+
+    const activeCount = students.filter(s => s.paymentStatus === 'paid').length;
+
+    setCoordinatorStats({
+      totalStudents: students.length,
+      activeStudents: activeCount,
+      inactiveStudents: students.length - activeCount,
+      totalSupervisors: supervisors.length,
+      totalOrganizations: orgsMap.size,
+      pendingReports: reports.filter(r => r.status === 'pending').length,
+      reviewedReports: reports.filter(r => r.status === 'reviewed').length,
+      totalReports: reports.length,
+    });
+
+    // Top organizations
+    const orgArray = Array.from(orgsMap.entries())
+      .map(([name, students]) => ({ name, students }))
+      .sort((a, b) => b.students - a.students)
+      .slice(0, 5);
+    setTopOrganizations(orgArray);
+
+    // Report submission data by week
+    const weekMap = new Map<number, { pending: number; reviewed: number }>();
+    reports.forEach(r => {
+      if (!weekMap.has(r.weekNumber)) {
+        weekMap.set(r.weekNumber, { pending: 0, reviewed: 0 });
+      }
+      const data = weekMap.get(r.weekNumber)!;
+      if (r.status === 'pending') data.pending++;
+      else data.reviewed++;
+    });
+
+    const chartData = Array.from(weekMap.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([week, data]) => ({
+        week: `Week ${week}`,
+        pending: data.pending,
+        reviewed: data.reviewed,
+        submissions: data.pending + data.reviewed
+      }));
+    setReportSubmissionData(chartData);
+  }, []);
   
   return (
     <DashboardLayout title="Coordinator Dashboard">

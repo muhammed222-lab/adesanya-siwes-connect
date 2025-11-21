@@ -118,24 +118,24 @@ const CoordinatorOrganizations = () => {
           </div>
           
           <div className="flex flex-col md:flex-row gap-4">
-            <Select value={stateFilter} onValueChange={setStateFilter}>
+            <Select value={stateFilter || "all"} onValueChange={(v) => setStateFilter(v === "all" ? "" : v)}>
               <SelectTrigger className="md:w-[150px]">
                 <SelectValue placeholder="Filter by State" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All States</SelectItem>
+                <SelectItem value="all">All States</SelectItem>
                 {states.map((state) => (
                   <SelectItem key={state} value={state}>{state}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
             
-            <Select value={lgaFilter} onValueChange={setLgaFilter}>
+            <Select value={lgaFilter || "all"} onValueChange={(v) => setLgaFilter(v === "all" ? "" : v)}>
               <SelectTrigger className="md:w-[180px]">
                 <SelectValue placeholder="Filter by LGA" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All LGAs</SelectItem>
+                <SelectItem value="all">All LGAs</SelectItem>
                 {lgas.map((lga) => (
                   <SelectItem key={lga} value={lga}>{lga}</SelectItem>
                 ))}

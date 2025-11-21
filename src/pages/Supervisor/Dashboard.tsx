@@ -1,69 +1,81 @@
 
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
 import StatCard from '../../components/Dashboard/StatCard';
 import { FileText, Users, MessageSquare, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '../../contexts/AuthContext';
+import { getStudents, getReports, getChats } from '../../lib/mockData';
 
 const SupervisorDashboard = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   
-  // Mock data for supervisor dashboard
-  const supervisorStats = {
-    assignedStudents: 15,
-    pendingReports: 8,
-    unreadMessages: 5,
-    inactiveStudents: 3
-  };
-  
-  // Mock data for recent student submissions
-  const recentSubmissions = [
-    {
-      id: '1',
-      studentName: 'John Adebayo',
-      matricNumber: '22-04-0191',
-      weekNumber: 4,
-      submissionDate: new Date('2023-07-22T10:30:00'),
-    },
-    {
-      id: '2',
-      studentName: 'Esther Okafor',
-      matricNumber: '22-04-0127',
-      weekNumber: 4,
-      submissionDate: new Date('2023-07-21T16:15:00'),
-    },
-    {
-      id: '3',
-      studentName: 'Oluwatobi Bakare',
-      matricNumber: '22-04-0112',
-      weekNumber: 4,
-      submissionDate: new Date('2023-07-21T09:45:00'),
+  const [supervisorStats, setSupervisorStats] = useState({
+    assignedStudents: 0,
+    pendingReports: 0,
+    unreadMessages: 0,
+    inactiveStudents: 0
+  });
+
+  const [recentSubmissions, setRecentSubmissions] = useState<any[]>([]);
+  const [organizations, setOrganizations] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      const allStudents = getStudents();
+      const myStudents = allStudents.filter(s => s.supervisorId === user.id);
+      
+      const allReports = getReports();
+      const myReports = allReports.filter(r => 
+        myStudents.some(s => s.id === r.studentId)
+      );
+
+      const allChats = getChats();
+      const unreadCount = allChats.filter(c => 
+        c.receiverId === user.id && !c.read
+      ).length;
+
+      const inactiveCount = myStudents.filter(s => s.paymentStatus === 'pending').length;
+
+      setSupervisorStats({
+        assignedStudents: myStudents.length,
+        pendingReports: myReports.filter(r => r.status === 'pending').length,
+        unreadMessages: unreadCount,
+        inactiveStudents: inactiveCount
+      });
+
+      // Recent submissions
+      const recent = myReports
+        .sort((a, b) => new Date(b.submissionDate).getTime() - new Date(a.submissionDate).getTime())
+        .slice(0, 3)
+        .map(r => {
+          const student = myStudents.find(s => s.id === r.studentId);
+          return {
+            id: r.id,
+            studentName: student?.name || 'Unknown',
+            matricNumber: student?.matricNumber || '',
+            weekNumber: r.weekNumber,
+            submissionDate: new Date(r.submissionDate)
+          };
+        });
+      setRecentSubmissions(recent);
+
+      // Organizations
+      const orgMap = new Map<string, number>();
+      myStudents.forEach(s => {
+        if (s.organizationName) {
+          orgMap.set(s.organizationName, (orgMap.get(s.organizationName) || 0) + 1);
+        }
+      });
+
+      const orgArray = Array.from(orgMap.entries())
+        .map(([name, studentCount]) => ({ name, studentCount }))
+        .sort((a, b) => b.studentCount - a.studentCount);
+      setOrganizations(orgArray);
     }
-  ];
-  
-  // Mock data for organizations
-  const organizations = [
-    {
-      name: 'Tech Solutions Ltd.',
-      studentCount: 5,
-    },
-    {
-      name: 'Global Systems Limited',
-      studentCount: 4,
-    },
-    {
-      name: 'Datawave Technologies',
-      studentCount: 3,
-    },
-    {
-      name: 'Fintech Innovations Ltd.',
-      studentCount: 2,
-    },
-    {
-      name: 'Digital Creative Agency',
-      studentCount: 1,
-    }
-  ];
+  }, [user]);
   
   return (
     <DashboardLayout title="Supervisor Dashboard">
