@@ -114,35 +114,35 @@ const CoordinatorStudents = () => {
           </div>
           
           <div className="flex flex-col md:flex-row gap-4">
-            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+            <Select value={departmentFilter || "all"} onValueChange={(v) => setDepartmentFilter(v === "all" ? "" : v)}>
               <SelectTrigger className="md:w-[200px]">
                 <SelectValue placeholder="Filter by Department" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Departments</SelectItem>
+                <SelectItem value="all">All Departments</SelectItem>
                 {departments.map((dept) => (
                   <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
             
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter || "all"} onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}>
               <SelectTrigger className="md:w-[150px]">
                 <SelectValue placeholder="Filter by Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>
             
-            <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+            <Select value={paymentFilter || "all"} onValueChange={(v) => setPaymentFilter(v === "all" ? "" : v)}>
               <SelectTrigger className="md:w-[150px]">
                 <SelectValue placeholder="Payment Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Payments</SelectItem>
+                <SelectItem value="all">All Payments</SelectItem>
                 <SelectItem value="paid">Paid</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
               </SelectContent>

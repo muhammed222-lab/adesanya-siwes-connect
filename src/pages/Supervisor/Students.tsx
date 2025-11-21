@@ -144,14 +144,14 @@ const SupervisorStudents = () => {
           
           <div className="flex flex-col md:flex-row gap-4">
             <Select 
-              value={organizationFilter} 
-              onValueChange={setOrganizationFilter}
+              value={organizationFilter || "all"} 
+              onValueChange={(v) => setOrganizationFilter(v === "all" ? "" : v)}
             >
               <SelectTrigger className="md:w-[240px]">
                 <SelectValue placeholder="Filter by Organization" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Organizations</SelectItem>
+                <SelectItem value="all">All Organizations</SelectItem>
                 {organizations.map((org) => (
                   <SelectItem key={org} value={org}>{org}</SelectItem>
                 ))}
@@ -159,14 +159,14 @@ const SupervisorStudents = () => {
             </Select>
             
             <Select 
-              value={statusFilter} 
-              onValueChange={setStatusFilter}
+              value={statusFilter || "all"} 
+              onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}
             >
               <SelectTrigger className="md:w-[180px]">
                 <SelectValue placeholder="Filter by Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
