@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
 import ReportForm from '../../components/Dashboard/ReportForm';
 import StatusBadge from '../../components/Dashboard/StatusBadge';
@@ -19,38 +18,29 @@ import {
 } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/use-toast';
 import { FileText, Eye } from 'lucide-react';
-
-// Mock data for previously submitted reports
-const previousReports = [
-  {
-    id: '1',
-    weekNumber: 3,
-    title: 'Database Design and Implementation',
-    submissionDate: new Date('2023-07-15'),
-    status: 'reviewed',
-    feedback: 'Good work on normalizing the database structure. Make sure to include ER diagrams next time.'
-  },
-  {
-    id: '2',
-    weekNumber: 2,
-    title: 'User Interface Design',
-    submissionDate: new Date('2023-07-08'),
-    status: 'reviewed',
-    feedback: 'Excellent wireframes. Consider adding more detailed explanations of your design choices.'
-  },
-  {
-    id: '3',
-    weekNumber: 1,
-    title: 'Introduction to the Organization',
-    submissionDate: new Date('2023-07-01'),
-    status: 'reviewed',
-    feedback: 'Well-written overview of the company structure and your role.'
-  }
-];
+import { useAuth } from '../../contexts/AuthContext';
+import { getReports, saveReports } from '../../lib/mockData';
+import { WeeklyReport } from '../../types';
 
 const StudentReports = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('submit');
-  const [currentWeek, setCurrentWeek] = useState(4); // Assuming the student is currently in week 4
+  const [currentWeek, setCurrentWeek] = useState(1);
+  const [previousReports, setPreviousReports] = useState<WeeklyReport[]>([]);
+  
+  useEffect(() => {
+    if (user) {
+      const allReports = getReports();
+      const myReports = allReports.filter(r => r.studentId === user.id);
+      setPreviousReports(myReports.sort((a, b) => b.weekNumber - a.weekNumber));
+      
+      // Calculate current week (next week after last submission)
+      if (myReports.length > 0) {
+        const lastWeek = Math.max(...myReports.map(r => r.weekNumber));
+        setCurrentWeek(lastWeek + 1);
+      }
+    }
+  }, [user]);
   
   const handleReportSubmission = (data: {
     title: string;
@@ -58,26 +48,53 @@ const StudentReports = () => {
     weekNumber: number;
     file?: File;
   }) => {
-    console.log('Submitting report:', data);
+    if (!user) return;
     
-    // In a real app, this would be an API call
+    // Convert file to base64 if present
+    if (data.file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const fileUrl = reader.result as string;
+        saveReport(data, fileUrl);
+      };
+      reader.readAsDataURL(data.file);
+    } else {
+      saveReport(data);
+    }
+  };
+
+  const saveReport = (data: any, fileUrl?: string) => {
+    const newReport: WeeklyReport = {
+      id: `rep-${Date.now()}`,
+      studentId: user!.id,
+      weekNumber: data.weekNumber,
+      title: data.title,
+      description: data.description,
+      submissionDate: new Date(),
+      status: 'pending',
+      fileUrl
+    };
+
+    const allReports = getReports();
+    allReports.push(newReport);
+    saveReports(allReports);
+    
+    setPreviousReports([newReport, ...previousReports]);
+    
     toast({
       title: "Report Submitted",
       description: `Your Week ${data.weekNumber} report has been submitted successfully.`,
     });
     
-    // Switch to the previous reports tab after submission
     setActiveTab('previous');
+    setCurrentWeek(data.weekNumber + 1);
   };
 
-  const handleViewReport = (reportId: string) => {
-    const report = previousReports.find(r => r.id === reportId);
-    if (report) {
-      toast({
-        title: `Week ${report.weekNumber}: ${report.title}`,
-        description: `Feedback: ${report.feedback}`,
-      });
-    }
+  const handleViewReport = (report: WeeklyReport) => {
+    toast({
+      title: `Week ${report.weekNumber}: ${report.title}`,
+      description: report.feedback || 'No feedback yet',
+    });
   };
 
   return (
@@ -103,50 +120,65 @@ const StudentReports = () => {
         </TabsContent>
         
         <TabsContent value="previous">
-          <div className="space-y-6">
-            {previousReports.map((report) => (
-              <Card key={report.id}>
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <CardTitle>Week {report.weekNumber}: {report.title}</CardTitle>
-                      <CardDescription>
-                        Submitted on {report.submissionDate.toLocaleDateString()}
-                      </CardDescription>
-                    </div>
-                    <StatusBadge status={report.status as any} />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-500">Feedback:</p>
-                      <p className="text-gray-700">{report.feedback}</p>
-                    </div>
-                    <div>
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleViewReport(report.id)}
-                        className="flex items-center"
-                      >
-                        <Eye size={16} className="mr-1" />
-                        View Full Report
-                      </Button>
-                    </div>
+          <div className="space-y-4">
+            {previousReports.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center py-8">
+                    <FileText size={48} className="mx-auto text-gray-400 mb-4" />
+                    <p className="text-gray-600">You haven't submitted any reports yet.</p>
+                    <Button 
+                      variant="link" 
+                      onClick={() => setActiveTab('submit')}
+                      className="text-aapoly-purple"
+                    >
+                      Submit your first report
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
-            ))}
-            
-            {previousReports.length === 0 && (
-              <div className="text-center py-16 bg-gray-50 rounded-lg">
-                <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900">No reports yet</h3>
-                <p className="text-gray-500 mt-2">
-                  You haven't submitted any weekly reports yet.
-                </p>
-              </div>
+            ) : (
+              previousReports.map((report) => (
+                <Card key={report.id}>
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-lg">Week {report.weekNumber}: {report.title}</CardTitle>
+                        <CardDescription>
+                          Submitted: {new Date(report.submissionDate).toLocaleDateString()}
+                        </CardDescription>
+                      </div>
+                      <StatusBadge status={report.status} />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 mb-4">{report.description}</p>
+                    
+                    {report.feedback && (
+                      <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+                        <p className="font-medium text-blue-900 mb-1">Supervisor Feedback:</p>
+                        <p className="text-blue-800">{report.feedback}</p>
+                      </div>
+                    )}
+                    
+                    {report.fileUrl && (
+                      <div className="flex items-center text-sm text-gray-500 mb-2">
+                        <FileText size={16} className="mr-2" />
+                        <span>File attached</span>
+                      </div>
+                    )}
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewReport(report)}
+                    >
+                      <Eye size={16} className="mr-2" />
+                      View Details
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
             )}
           </div>
         </TabsContent>

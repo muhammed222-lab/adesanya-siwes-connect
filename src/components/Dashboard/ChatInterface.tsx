@@ -1,79 +1,40 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Send } from 'lucide-react';
-
-interface Message {
-  id: string;
-  senderId: string;
-  message: string;
-  timestamp: Date;
-  senderName: string;
-}
+import { ChatMessage } from '../../types';
 
 interface ChatInterfaceProps {
-  recipientName: string;
-  recipientId: string;
+  messages: ChatMessage[];
   currentUserId: string;
-  currentUserName: string;
+  onSendMessage: (message: string) => void;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({
-  recipientName,
-  recipientId,
+  messages,
   currentUserId,
-  currentUserName,
+  onSendMessage,
 }) => {
   const [message, setMessage] = useState('');
-  
-  // Mock messages for demonstration purposes
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      senderId: currentUserId,
-      message: 'Hello, how are you doing?',
-      timestamp: new Date(Date.now() - 3600000), // 1 hour ago
-      senderName: currentUserName,
-    },
-    {
-      id: '2',
-      senderId: recipientId,
-      message: "I'm doing well, thank you! How can I help you today?",
-      timestamp: new Date(Date.now() - 3000000), // 50 minutes ago
-      senderName: recipientName,
-    },
-    {
-      id: '3',
-      senderId: currentUserId,
-      message: "I wanted to discuss my latest weekly report submission.",
-      timestamp: new Date(Date.now() - 2400000), // 40 minutes ago
-      senderName: currentUserName,
-    },
-  ]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!message.trim()) return;
     
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      senderId: currentUserId,
-      message: message,
-      timestamp: new Date(),
-      senderName: currentUserName,
-    };
-    
-    setMessages([...messages, newMessage]);
+    onSendMessage(message);
     setMessage('');
   };
 
   return (
     <div className="flex flex-col h-[500px] bg-white rounded-lg shadow">
-      {/* Chat Header */}
-      <div className="bg-aapoly-purple text-white p-4 rounded-t-lg">
-        <h3 className="font-semibold">Chat with {recipientName}</h3>
-      </div>
-      
       {/* Messages Container */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg) => (
@@ -92,11 +53,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               <p className={`text-xs mt-1 ${
                 msg.senderId === currentUserId ? 'text-gray-200' : 'text-gray-500'
               }`}>
-                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
             </div>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
       
       {/* Message Input */}
@@ -105,12 +67,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           type="text"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="flex-1 border rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+          className="flex-1 border rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-aapoly-purple"
           placeholder="Type your message..."
         />
         <button 
           type="submit"
-          className="bg-aapoly-purple text-white px-4 py-2 rounded-r-lg flex items-center justify-center"
+          className="bg-aapoly-purple text-white px-4 py-2 rounded-r-lg flex items-center justify-center hover:bg-aapoly-purple/90"
         >
           <Send size={20} />
         </button>

@@ -1,146 +1,142 @@
-
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
 import ChatInterface from '../../components/Dashboard/ChatInterface';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, MessageSquare } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-
-// Mock student data
-const mockStudents = [
-  {
-    id: 'student-1',
-    name: 'John Adebayo',
-    matricNumber: '22-04-0191',
-  },
-  {
-    id: 'student-2',
-    name: 'Esther Okafor',
-    matricNumber: '22-04-0127',
-  },
-  {
-    id: 'student-3',
-    name: 'Oluwatobi Bakare',
-    matricNumber: '22-04-0112',
-  },
-  {
-    id: 'student-4',
-    name: 'Chidinma Eze',
-    matricNumber: '22-04-0084',
-  },
-  {
-    id: 'student-5',
-    name: 'Mohammed Ibrahim',
-    matricNumber: '22-04-0057',
-  },
-  {
-    id: 'student-6',
-    name: 'Yetunde Adewale',
-    matricNumber: '22-04-0063',
-  },
-  {
-    id: 'student-7',
-    name: 'Samuel Okonkwo',
-    matricNumber: '22-04-0042',
-  },
-  {
-    id: 'student-8',
-    name: 'Fatima Bello',
-    matricNumber: '22-04-0031',
-  },
-];
+import { Users } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { getChats, saveChats, getStudents } from '../../lib/mockData';
+import { ChatMessage, Student } from '../../types';
 
 const SupervisorMessages = () => {
-  const { studentId } = useParams<{ studentId: string }>();
-  const navigate = useNavigate();
   const { user } = useAuth();
-  
-  // Find selected student
-  const selectedStudent = studentId 
-    ? mockStudents.find(s => s.id === studentId) 
-    : null;
-  
-  // If studentId is provided but not found
-  if (studentId && !selectedStudent) {
+  const [students, setStudents] = useState<Student[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      const allStudents = getStudents();
+      const myStudents = allStudents.filter(s => s.supervisorId === user.id);
+      setStudents(myStudents);
+      
+      if (myStudents.length > 0 && !selectedStudent) {
+        setSelectedStudent(myStudents[0]);
+      }
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user && selectedStudent) {
+      const allChats = getChats();
+      const relevantMessages = allChats.filter(
+        m => (m.senderId === user.id && m.receiverId === selectedStudent.id) ||
+             (m.senderId === selectedStudent.id && m.receiverId === user.id)
+      ).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      
+      setMessages(relevantMessages);
+    }
+  }, [user, selectedStudent]);
+
+  const handleSendMessage = (message: string) => {
+    if (!user || !selectedStudent) return;
+
+    const newMessage: ChatMessage = {
+      id: `chat-${Date.now()}`,
+      senderId: user.id,
+      receiverId: selectedStudent.id,
+      message,
+      timestamp: new Date(),
+      read: false
+    };
+
+    const allChats = getChats();
+    allChats.push(newMessage);
+    saveChats(allChats);
+    
+    setMessages([...messages, newMessage]);
+  };
+
+  if (students.length === 0) {
     return (
       <DashboardLayout title="Messages">
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <MessageSquare className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-lg font-medium text-gray-900">Student not found</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            The student you are looking for does not exist or you don't have permission to view.
-          </p>
-          <Button 
-            onClick={() => navigate('/supervisor/messages')}
-            className="mt-4 bg-aapoly-purple hover:bg-aapoly-purple/90"
-          >
-            Back to Messages
-          </Button>
-        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-12">
+              <Users size={64} className="mx-auto text-gray-400 mb-4" />
+              <h3 className="text-xl font-medium text-gray-700 mb-2">
+                No Students Assigned
+              </h3>
+              <p className="text-gray-500">
+                You will be able to message students once they have been assigned to you.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </DashboardLayout>
     );
   }
-  
+
   return (
-    <DashboardLayout title={selectedStudent ? `Chat with ${selectedStudent.name}` : "Messages"}>
-      {selectedStudent ? (
-        // Show chat interface with selected student
-        <div>
-          <Button 
-            variant="outline" 
-            className="mb-4 flex items-center"
-            onClick={() => navigate('/supervisor/messages')}
-          >
-            <ArrowLeft size={16} className="mr-1" />
-            Back to all students
-          </Button>
-          
-          <div className="max-w-4xl">
-            <ChatInterface 
-              recipientName={selectedStudent.name}
-              recipientId={selectedStudent.id}
-              currentUserId={user?.id || 'supervisor-1'}
-              currentUserName={user?.name || 'Dr. Oluwaseun'}
-            />
-          </div>
-        </div>
-      ) : (
-        // Show list of students to chat with
-        <div className="max-w-4xl">
-          <h2 className="text-xl font-semibold mb-4">Select a student to chat with</h2>
-          
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="divide-y divide-gray-200">
-              {mockStudents.map((student) => (
-                <div 
+    <DashboardLayout title="Messages">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Student List */}
+        <Card className="md:col-span-1">
+          <CardContent className="pt-6">
+            <h3 className="font-semibold mb-4">Your Students</h3>
+            <div className="space-y-2">
+              {students.map((student) => (
+                <Button
                   key={student.id}
-                  className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-                  onClick={() => navigate(`/supervisor/messages/${student.id}`)}
+                  variant={selectedStudent?.id === student.id ? "default" : "outline"}
+                  className="w-full justify-start"
+                  onClick={() => setSelectedStudent(student)}
                 >
-                  <div className="flex items-center">
-                    <div className="h-10 w-10 rounded-full bg-aapoly-purple text-white flex items-center justify-center mr-3">
-                      {student.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="font-medium">{student.name}</p>
-                      <p className="text-sm text-gray-500">{student.matricNumber}</p>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="ml-auto flex items-center"
-                    >
-                      <MessageSquare size={16} className="mr-1" />
-                      Chat
-                    </Button>
+                  <Avatar className="h-8 w-8 mr-2">
+                    <AvatarFallback>
+                      {student.name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="text-left flex-1 overflow-hidden">
+                    <div className="font-medium truncate">{student.name}</div>
+                    <div className="text-xs text-muted-foreground truncate">{student.matricNumber}</div>
                   </div>
-                </div>
+                </Button>
               ))}
             </div>
-          </div>
+          </CardContent>
+        </Card>
+
+        {/* Chat Interface */}
+        <div className="md:col-span-2">
+          {selectedStudent && (
+            <>
+              <Card className="mb-4">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-12 w-12">
+                      <AvatarFallback className="bg-aapoly-purple text-white">
+                        {selectedStudent.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="font-semibold">{selectedStudent.name}</h3>
+                      <p className="text-sm text-gray-600">{selectedStudent.matricNumber} • {selectedStudent.department}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <ChatInterface 
+                messages={messages}
+                currentUserId={user!.id}
+                onSendMessage={handleSendMessage}
+              />
+            </>
+          )}
         </div>
-      )}
+      </div>
     </DashboardLayout>
   );
 };
