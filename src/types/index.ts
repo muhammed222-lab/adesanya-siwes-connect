@@ -19,6 +19,10 @@ export interface Student extends User {
   organizationLGA?: string;
   organizationContactPerson?: string;
   organizationPhoneNumber?: string;
+  organizationLocation?: {
+    lat: number;
+    lng: number;
+  };
   supervisorId?: string;
 }
 

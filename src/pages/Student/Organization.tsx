@@ -22,8 +22,13 @@ import {
 } from '@/components/ui/select';
 import { toast } from '@/components/ui/use-toast';
 import { NIGERIAN_STATES } from '@/constants';
+import LocationMap from '../../components/LocationMap';
+import { useAuth } from '../../contexts/AuthContext';
+import { getStudents, saveStudents } from '../../lib/mockData';
 
 const StudentOrganization = () => {
+  const { user } = useAuth();
+  
   // State for organization form
   const [formData, setFormData] = useState({
     organizationName: '',
@@ -36,9 +41,11 @@ const StudentOrganization = () => {
     contactPersonEmail: '',
     startDate: '',
     endDate: '',
+    location: { lat: 0, lng: 0 },
   });
   
   const [formSubmitting, setFormSubmitting] = useState(false);
+  const [showMap, setShowMap] = useState(false);
   
   // Mock LGAs based on selected state
   const getLGAs = (state: string) => {
@@ -72,6 +79,20 @@ const StudentOrganization = () => {
     }
   };
   
+  // Handle location selection from map
+  const handleLocationSelect = (location: { lat: number; lng: number; address: string }) => {
+    setFormData(prev => ({
+      ...prev,
+      location: { lat: location.lat, lng: location.lng },
+      address: location.address
+    }));
+    setShowMap(false);
+    toast({
+      title: "Location Selected",
+      description: "Organization location has been set on the map.",
+    });
+  };
+  
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,15 +111,50 @@ const StudentOrganization = () => {
       setFormSubmitting(false);
       return;
     }
-    
-    // In a real app, this would be an API call to save the organization information
-    setTimeout(() => {
+
+    if (formData.location.lat === 0 && formData.location.lng === 0) {
       toast({
-        title: "Organization Information Saved",
-        description: "Your SIWES organization details have been updated successfully.",
+        title: "Location Required",
+        description: "Please select the organization location on the map.",
+        variant: "destructive",
       });
       setFormSubmitting(false);
-    }, 1500);
+      return;
+    }
+    
+    // Save to localStorage
+    try {
+      const students = getStudents();
+      const studentIndex = students.findIndex(s => s.id === user?.id);
+      
+      if (studentIndex !== -1) {
+        students[studentIndex] = {
+          ...students[studentIndex],
+          organizationName: formData.organizationName,
+          organizationAddress: formData.address,
+          organizationState: formData.state,
+          organizationLGA: formData.lga,
+          organizationContactPerson: formData.contactPersonName,
+          organizationPhoneNumber: formData.contactPersonPhone,
+          organizationLocation: formData.location,
+        };
+        
+        saveStudents(students);
+        
+        toast({
+          title: "Organization Information Saved",
+          description: "Your SIWES organization details have been updated successfully.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save organization information.",
+        variant: "destructive",
+      });
+    }
+    
+    setFormSubmitting(false);
   };
   
   return (
@@ -136,8 +192,48 @@ const StudentOrganization = () => {
                     value={formData.address}
                     onChange={handleInputChange}
                     required
+                    rows={3}
                   />
                 </div>
+                
+                <div className="space-y-2">
+                  <Label>Organization Location on Map *</Label>
+                  <div className="p-4 border border-border rounded-lg bg-gray-50">
+                    {formData.location.lat !== 0 ? (
+                      <div className="space-y-2">
+                        <p className="text-sm text-green-600 font-medium">✓ Location set</p>
+                        <p className="text-xs text-muted-foreground">
+                          Coordinates: {formData.location.lat.toFixed(4)}, {formData.location.lng.toFixed(4)}
+                        </p>
+                        <Button 
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowMap(true)}
+                        >
+                          Change Location
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button 
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowMap(true)}
+                      >
+                        📍 Select Location on Map
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                
+                {showMap && (
+                  <div className="border border-border rounded-lg p-4">
+                    <LocationMap 
+                      onLocationSelect={handleLocationSelect}
+                      initialLocation={formData.location.lat !== 0 ? formData.location : undefined}
+                    />
+                  </div>
+                )}
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">

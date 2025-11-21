@@ -15,7 +15,7 @@ const LoginForm = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,7 +26,18 @@ const LoginForm = () => {
     : 'student';
   
   // Get default credentials for selected role
-  const defaultCredentials = DEFAULT_USERS[validRole];
+  const getDefaultCredentials = () => {
+    if (validRole === 'student') {
+      return { identifier: '22-04-0191', password: 'adebayo' };
+    } else if (validRole === 'supervisor') {
+      return { identifier: 'oluwaseun.adeleke@aapoly.edu.ng', password: 'supervisor123' };
+    } else if (validRole === 'coordinator') {
+      return { identifier: 'funmilayo.adeyemi@aapoly.edu.ng', password: 'coordinator123' };
+    }
+    return null;
+  };
+  
+  const defaultCredentials = getDefaultCredentials();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +45,7 @@ const LoginForm = () => {
     setLoading(true);
     
     try {
-      const success = await login(email, password, validRole);
+      const success = await login(identifier, password, validRole);
       
       if (success) {
         // Redirect based on role
@@ -90,14 +101,16 @@ const LoginForm = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
+              <label htmlFor="identifier" className="block text-sm font-medium text-gray-700">
+                {validRole === 'student' ? 'Matric Number or Surname' : 'Email Address'}
+              </label>
               <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="identifier"
+                type="text"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 required
-                placeholder="Enter your email"
+                placeholder={validRole === 'student' ? 'Enter matric number or surname' : 'Enter your email'}
                 className="w-full"
               />
             </div>
@@ -133,7 +146,7 @@ const LoginForm = () => {
             <div className="mt-6 p-3 bg-gray-50 rounded border border-gray-200">
               <p className="text-sm text-gray-600 font-medium">Test Credentials:</p>
               <p className="text-sm text-gray-600">
-                Email: <span className="font-mono">{defaultCredentials.email}</span>
+                {validRole === 'student' ? 'Matric Number' : 'Email'}: <span className="font-mono">{defaultCredentials.identifier}</span>
               </p>
               <p className="text-sm text-gray-600">
                 Password: <span className="font-mono">{defaultCredentials.password}</span>
